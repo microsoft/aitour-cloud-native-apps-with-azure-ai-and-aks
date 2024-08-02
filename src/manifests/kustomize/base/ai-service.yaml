@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service-stable
+spec:
+  ports:
+  - name: http
+    port: 5001
+    targetPort: 5001
+  selector:
+    app: ai-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service-canary
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 5001
+    targetPort: 5001
+  selector:
+    app: ai-service
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ai-service
+spec:
+  parentRefs:
+    - name: gateway-internal
+      namespace: aks-istio-ingress
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: ai-service-stable
+      kind: Service
+      port: 5001
+    - name: ai-service-canary
+      kind: Service
+      port: 5001
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: ai-service
+spec:
+  replicas: 1
+  strategy:
+    canary:
+      canaryService: ai-service-canary
+      stableService: ai-service-stable
+      trafficRouting:
+        plugins:
+          argoproj-labs/gatewayAPI:
+            httpRoute: ai-service
+            namespace: pets
+      steps:
+      - setWeight: 50
+      - pause: {}
+      - setWeight: 100
+      - pause: {}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: ai-service-account
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: ai-service
+        image: ghcr.io/pauldotyu/aks-store-demo/ai-service:1.2.1
+        ports:
+        - containerPort: 5001
+        envFrom:
+        - configMapRef:
+            name: ai-service-configs
+        resources:
+          requests:
+            cpu: 20m
+            memory: 50Mi
+          limits:
+            cpu: 50m
+            memory: 128Mi
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5001
+          initialDelaySeconds: 10
+          failureThreshold: 10
+          timeoutSeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5001
+          initialDelaySeconds: 3
+          failureThreshold: 10
+          timeoutSeconds: 3
+          periodSeconds: 15
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5001
+          failureThreshold: 10
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 20
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ai-service
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ai-service
+  unhealthyPodEvictionPolicy: AlwaysAllow

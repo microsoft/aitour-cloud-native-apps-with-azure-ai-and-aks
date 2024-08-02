@@ -19,6 +19,9 @@ spec:
         image: ghcr.io/pauldotyu/aks-store-demo/product-service:1.5.0
         ports:
         - containerPort: 3002
+        env:
+        - name: AI_SERVICE_URL
+          value: "http://ai-service-stable:5001/"
         resources:
           requests:
             cpu: 1m
