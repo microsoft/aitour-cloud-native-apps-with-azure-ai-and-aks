@@ -1,38 +1,22 @@
-# Demo Environment Setup and Walkthrough
+# Progressive Delivery on AKS with Argo Rollouts, Istio, and Gateway API
 
-This guide will walk you through the demo of progressively rolling out AI enabled applications on cloud native infrastruction. We will heavily use command line tools to deploy a demo e-commerce application to AKS using ArgoCD, and automate the process of safely deploying new iterations of the app using Argo Rollouts, Istio Service Mesh, and Gateway API.
+TODO: This is a work in progress and will be updated with more details.
 
 ## Pre-requisites
 
-You will need the following tools installed on your machine.
+You will need the following tools installed on your machine:
 
+- [Azure Subscription](https://azure.microsoft.com/get-started/)
 - [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
 - [GitHub CLI](https://cli.github.com/)
 - [Terraform](https://www.terraform.io/downloads.html)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
-- [Helm](https://helm.sh/docs/intro/install/)
 - [ArgoCD CLI](https://argo-cd.readthedocs.io/en/stable/getting_started/#1-install-argo-cd)
 - [Argo Rollouts Kubectl Plugin](https://argo-rollouts.readthedocs.io/en/stable/installation/#kubectl-plugin-installation)
 
-> [!CAUTION]
-> The commands listed below should be run in a POSIX compliant shell such as bash or zsh.
-
 ## Getting started
 
-Start by logging into GitHub CLI.
-
-```bash
-gh auth login
-```
-
-Fork this repository and clone it to your local machine.
-
-```bash
-gh repo fork https://github.com/microsoft/aitour-cloud-native-apps-with-azure-ai-and-aks --fork-name cloud-native-ai-demo --clone
-cd cloud-native-ai-demo
-```
-
-Login to the Azure CLI using `az login` and then run the following command to register the extensions.
+Login to the Azure CLI using `az login` and then run the following command to register the extensions:
 
 ```bash
 az login
@@ -40,41 +24,34 @@ az login
 
 Before running the `terraform apply` command, be sure you have Azure CLI installed and logged in using `az login`. It is also important to ensure you have the required preview features enabled in your subscription.
 
-Ensure you have the following preview features enabled in your subscription.
+The following command will enable the features in your subscription:
 
 ```bash
-az feature register --namespace Microsoft.ContainerService --name EnableAPIServerVnetIntegrationPreview
-az feature register --namespace Microsoft.ContainerService --name NRGLockdownPreview
-az feature register --namespace Microsoft.ContainerService --name SafeguardsPreview
-az feature register --namespace Microsoft.ContainerService --name NodeAutoProvisioningPreview
-az feature register --namespace Microsoft.ContainerService --name DisableSSHPreview
-az feature register --namespace Microsoft.ContainerService --name AutomaticSKUPreview
-az provider register --namespace Microsoft.ContainerService
+az feature register --namespace "Microsoft.ContainerService" --name "AzureServiceMeshPreview"
+az feature register --namespace "Microsoft.ContainerService" --name "AdvancedNetworkingPreview"
+az feature register --namespace "Microsoft.ContainerService" --name "CiliumDataplanePreview"
 ```
 
-You should also have the following Azure CLI extensions installed.
+You should also have the following Azure CLI extensions installed:
 
 ```bash
 az extension add --name aks-preview
 az extension add --name amg
 ```
 
+> [!NOTE]
+> Make sure you are in the same directory as this README before running the commands below.
+
 ## Provision with Terraform
 
-Assuming you are in the root of the cloned repository, navigate to the `terraform` directory.
-
-```bash
-cd src/infra/terraform
-```
-
-The following commands will deploy the infrastructure with Terraform.
+The following commands will deploy the infrastructure with Terraform
 
 ```bash
 terraform init
 terraform apply
 ```
 
-After the deployment is complete, export output variables which will be used in the next steps.
+After the deployment is complete, export output variables which will be used in the next steps
 
 ```bash
 export RG_NAME=$(terraform output -raw rg_name)
@@ -95,7 +72,7 @@ export SB_QUEUE_NAME=$(terraform output -raw sb_queue_name)
 export SB_IDENTITY_CLIENT_ID=$(terraform output -raw sb_identity_client_id)
 ```
 
-Connect to the AKS cluster.
+Connect to the AKS cluster
 
 ```bash
 az aks get-credentials --name $AKS_NAME --resource-group $RG_NAME
@@ -103,7 +80,7 @@ az aks get-credentials --name $AKS_NAME --resource-group $RG_NAME
 
 ## Enable Azure Managed Prometheus metrics scraping
 
-Configure Azure Managed Prometheus to scrape metrics from any Pod across all Namespaces that have Prometheus annotations. This will enable the Istio service mesh metrics scraping.
+Configure Azure Managed Prometheus to scrape metrics from any Pod across all Namespaces that have Prometheus annotations. This will enable the Istio metrics scraping.
 
 ```bash
 kubectl create configmap -n kube-system ama-metrics-prometheus-config --from-file prometheus-config
@@ -111,7 +88,7 @@ kubectl create configmap -n kube-system ama-metrics-prometheus-config --from-fil
 
 ## Install GatewayAPI CRDs
 
-Deploy GatewayAPI for the application.
+Deploy GatewayAPI for the application:
 
 > [!WARNING]
 > The [Kubernetes Gateway API](https://github.com/kubernetes-sigs/gateway-api) project is still under active development and its CRDs are not installed by default in Kubernetes. You will need to install them manually. Keep an eye on the project's [releases](https://github.com/kubernetes-sigs/gateway-api/releases) page for the latest version of the CRDs.
@@ -122,7 +99,7 @@ kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/downloa
 
 ## Install Istio Gateways
 
-After the GatewayAPI CRDs are installed, deploy internal and external Gateways that will utilize the AKS Istio Ingress Gateways that were provisioned by the Terraform deployment.
+After the GatewayAPI CRDs are installed, deploy internal and external Gateways:
 
 ```bash
 kubectl apply -f - <<EOF
@@ -165,38 +142,18 @@ spec:
 EOF
 ```
 
-## Install ArgoCD and Argo Rollouts
+> More dashboards can be found [here](https://grafana.com/orgs/istio)
 
-Add Argo's Helm repository
+## Install Argo Rollout GatewayAPI Plugin
 
-```bash
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-```
+This demo will use Argo Rollouts to manage the progressive delivery of the ai-service. To do this, we will need to enable Argo Rollouts to use the Gateway API.
 
-Install the ArgoCD Helm chart
-
-```bash
-helm install argocd argo/argo-cd \
---namespace argocd \
---create-namespace \
---version 7.3.7
-```
-
-Install the Argo Rollouts Helm chart
-
-```bash
-helm install argo-rollouts argo/argo-rollouts \
---namespace argo-rollouts \
---create-namespace \
---version 2.37.2
-```
-
-This demo will use Argo Rollouts to manage the progressive delivery of the AI service. To do this, we will need to enable Argo Rollouts to use the Gateway API plugin.
+> [!NOTE]
+> The Argo Rollouts custom resource defintions (CRDs) were installed as part of the Terraform deployment.
 
 To enable Argo Rollouts to use the Gateway API, you will need to install the TrafficRouter plugin. This can be done by creating a ConfigMap in the `argo-rollouts` namespace that points to the plugin binary. Latest versions of the plugin can be found [here](https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases).
 
-Install the TrafficRouter plugin.
+Install the TrafficRouter plugin:
 
 ```bash
 kubectl apply -f - <<EOF
@@ -212,19 +169,19 @@ data:
 EOF
 ```
 
-Restart the Argo Rollouts controller so that it can pick up the new plugin.
+Restart the Argo Rollouts controller to pick up the new plugin:
 
 ```bash
 kubectl rollout restart deployment -n argo-rollouts argorollouts-release-argo-rollouts
 ```
 
-Inspect the logs to ensure the plugin was loaded.
+Inspect the logs to ensure the plugin was loaded:
 
 ```bash
 kubectl logs -n argo-rollouts -l app.kubernetes.io/name=argo-rollouts | grep gatewayAPI
 ```
 
-Argo Rollouts will need to be able to edit HTTPRoute resources. Create a ClusterRole and ClusterRoleBinding for the Argo Rollouts service account.
+Allow the Argo Rollouts controller to edit HTTPRoute resources:
 
 ```bash
 kubectl apply -f - <<EOF
@@ -258,18 +215,16 @@ EOF
 
 ## Demo app configuration
 
-Using the output variables from the Terraform deployment, create a Namespace, ServiceAccounts, and ConfigMaps for the demo application.
+Using the output variables from the Terraform deployment, create a Namespace, ServiceAccounts, and ConfigMaps for the demo application
 
-Create a Namespace with a label for automatic Istio sidecar injection.
+Create a Namespace with a label for automatic Istio sidecar injection
 
 ```bash
 kubectl create namespace pets
-kubectl label namespace pets istio.io/rev=asm-1-22
+kubectl label namespace pets istio.io/rev=asm-1-21
 ```
 
-The ai-service, order-service, and makeline-service will use Azure Workload Identity for authentication. This is enabled using managed identities and federated credentials which have been provisioned by the Terraform deployment. The last bit of configuration to enable workload identity are the ServiceAccounts and ConfigMaps for each of the services that need to interact with Azure services.
-
-Create a ServiceAccount and ConfigMap for the **ai-service**.
+Create a ServiceAccoun and ConfigMap for the ai-service
 
 ```bash
 kubectl apply -f - <<EOF
@@ -297,7 +252,7 @@ data:
 EOF
 ```
 
-Create a ServiceAccount and ConfigMap for the **makeline-service**.
+Create a ConfigMap for the makeline-service
 
 ```bash
 kubectl apply -f - <<EOF
@@ -327,7 +282,7 @@ data:
 EOF
 ```
 
-Create a ServiceAccount and ConfigMap for the **order-service**.
+Create a ConfigMap for the order-service
 
 ```bash
 kubectl apply -f - <<EOF
@@ -352,10 +307,18 @@ data:
 EOF
 ```
 
-> [!NOTE]
-> At this point you are ready to demo.
-
 ## Demo app deployment with ArgoCD
+
+At this point you are ready to demo.
+
+Fork the [aks-store-demo-manifests](https://github.com/pauldotyu/aks-store-demo-manifests) repository and clone it to your local machine.
+
+```bash
+cd ~/
+gh repo fork https://github.com/pauldotyu/aks-store-demo-manifests --clone
+cd aks-store-demo-manifests
+git checkout argo
+```
 
 Update the current context to the ArgoCD namespace.
 
@@ -363,22 +326,19 @@ Update the current context to the ArgoCD namespace.
 kubectl config set-context --current --namespace=argocd
 ```
 
+> [!NOTE]
+> The ArgoCD custom resource defintions (CRDs) were installed as part of the Terraform deployment.
+
 Connect to the ArgoCD server.
 
 ```bash
 argocd login --core
 ```
 
-Deploy the demo application.
+Deploy the ArgoCD application.
 
 ```bash
-argocd app create pets \
---sync-policy auto \
---repo https://github.com/pauldotyu/aks-store-demo-manifests.git \
---revision argo \
---path overlays/dev \
---dest-namespace pets \
---dest-server https://kubernetes.default.svc
+argocd app create pets --sync-policy auto --repo https://github.com/pauldotyu/aks-store-demo-manifests.git --revision ai-tour --path overlays/dev --dest-namespace pets --dest-server https://kubernetes.default.svc
 ```
 
 Check the status of the application and wait for the **STATUS** to be **Synced** and **HEALTH** to be **Healthy**.
@@ -395,42 +355,33 @@ Run the following command then click on the link below to open the ArgoCD UI.
 argocd admin dashboard
 ```
 
-Once you see the application has deployed completely, run the following command to get the public IP address of the application and issue a curl command to test the application. You should see a **200 OK** response.
+Run the following command to get the public IP address of the application.
 
 ```bash
 INGRESS_PUBLIC_IP=$(kubectl get svc -n aks-istio-ingress aks-istio-ingressgateway-external -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-curl -IL "http://${INGRESS_PUBLIC_IP}" -H "Host: shop.aks.rocks"
+curl -IL "http://${INGRESS_PUBLIC_IP}" -H "Host: store.aks.rocks"
 ```
-
-Add a hosts file entry on your local machine to browse to the application using a friendly URL.
 
 Open your hosts file and add the following entry.
 
 ```bash
-<YOUR_INGRESS_PUBLIC_IP> shop.aks.rocks
+<YOUR_INGRESS_PUBLIC_IP> store.aks.rocks
 ```
 
-Now you can browse to both the frontend and backend applications using the following URLs.
+Now you can browse to the application using the URL: [http://store.aks.rocks](http://store.aks.rocks)
 
-- [http://shop.aks.rocks](http://shop.aks.rocks)
-- [http://admin.aks.rocks](http://admin.aks.rocks)
+## Add AI to the demo app
 
-> [!IMPORTANT]
-> This is where you show the admin site and how AI is not enabled yet.
+## Progressive delivery with Argo Rollouts
 
-## Sprinkle in some AI magic ✨
+Merge the branch to deploy the rollout for the ai-service. The actual manifest is [here](https://github.com/pauldotyu/aks-store-demo-manifests/blob/ai-tour-1/base/ai-service.yaml). Note the canary steps in the manifest. The first step sets the weight to 50% for the canary service. The second step pauses the rollout. The third step sets the weight to 100% for the canary service. The fourth step pauses the rollout and waits for a final promotion.
 
-Merge the **ai** branch to deploy the rollout for the **ai-service**.
-
-```bash
-git merge ai
-```
-
-Open the base/ai-service.yaml manifest and note the canary steps in the manifest. The first step sets the weight to 50% for the canary service. The second step pauses the rollout. The third step sets the weight to 100% for the canary service. The fourth step pauses the rollout and waits for a final promotion.
-
-Push the commit to the remote repository.
+> [!NOTE]
+> Make sure you are in the aks-store-demo-manifests repository before running the command below.
 
 ```bash
+git merge ai-tour-1
+git diff origin/ai-tour
 git push
 ```
 
@@ -446,23 +397,12 @@ When the app is fully synced, watch the rollout and wait for **Status** to show 
 kubectl argo rollouts get rollout ai-service -n pets -w
 ```
 
-When the rollout is healthy, hit **CTRL+C** to exit the watch.
+Using a web browser, navigate to the 
 
-Run the following command to check on the AI service's HTTPRoute. You should see that it has been updated to 100/0 traffic split between the stable and canary with the stable service receiving all traffic.
-
-```bash
-kubectl describe httproute ai-service -n pets
-```
-
-Using a web browser, navigate to the store admin site and create a new product.
-
-> [!IMPORTANT]
-> You should see the AI service being used to generate the product description ✨
-
-Next, let's update the rollout to set the **ai-service** image to the **latest** version.
+When the rollout is healthy, hit **CTRL+C** to exit the watch then update the rollout to set the **ai-service** image to the **1.4.0** version.
 
 ```bash
-kubectl argo rollouts set image ai-service -n pets ai-service=ghcr.io/pauldotyu/aks-store-demo/ai-service:latest
+kubectl argo rollouts set image ai-service -n pets ai-service=ghcr.io/pauldotyu/aks-store-demo/ai-service:1.4.0
 ```
 
 Watch the rollout again and wait for **Status** to show **॥ Paused**.
@@ -477,7 +417,7 @@ When the rollout is paused, hit **CTRL+C** to exit the watch then check the weig
 kubectl describe httproute ai-service -n pets
 ```
 
-Promote the canary to next step to shift all traffic to the canary.
+Promote the canary to next step to set the weight to 100%.
 
 ```bash
 kubectl argo rollouts promote ai-service -n pets
@@ -489,9 +429,7 @@ Watch the rollout and wait for **Status** to show **॥ Paused**.
 kubectl argo rollouts get rollout ai-service -n pets -w
 ```
 
-When the rollout is paused, hit **CTRL+C** to exit the watch then check the weights of the HTTPRoute again.
-
-You should see that it has been updated to 0/100 traffic split with the canary service receiving all traffic.
+When the rollout is paused, hit **CTRL+C** to exit the watch then check the weights of the HTTPRoute again. You should see that it has been updated to 0/100 traffic split with the canary service receiving all traffic.
 
 ```bash
 kubectl describe httproute ai-service -n pets
@@ -503,7 +441,7 @@ All that is left is to promote the canary to the stable version.
 kubectl argo rollouts promote ai-service -n pets
 ```
 
-Watch the rollout one last time to see the stable version is now running the latest version and after a few minutes the rollout will scale down the **revision:1** ReplicaSet pods.
+Watch the rollout one last time to see the stable version is now running version 1.4.0 and after a few minutes the rollout will scale down the **revision:1** ReplicaSet pods.
 
 ```bash
 kubectl argo rollouts get rollout ai-service -n pets -w
@@ -511,12 +449,7 @@ kubectl argo rollouts get rollout ai-service -n pets -w
 
 When you see the **Status** show **✔ Healthy** and **revision:1** ReplicaSet status as **ScaledDown**, hit **CTRL+C** to exit the watch.
 
-Go back to the store admin site and edit the product you created earlier.
-
-> [!IMPORTANT]
-> You should see the AI service can be used to generate the product images too ✨✨
-
-## BONUS: Import Istio dashboard into Azure Managed Grafana
+## Import Istio dashboard into Azure Managed Grafana
 
 Import the Istio dashboard into the Azure Managed Grafana instance.
 
@@ -527,8 +460,6 @@ az grafana dashboard import \
   --folder 'Azure Managed Prometheus' \
   --definition 7630
 ```
-
-Navigate to your Azure Managed Grafana in the Azure portal, click on the endpoint link, then log in. In the Grafana portal, click **Dashboards** in the left navigation, then click the **Azure Managed Prometheus** folder. You should see the Istio dashboard along with other Kubernetes dashboards. Click on a few and explore the metrics.
 
 ## Troubleshooting
 
@@ -591,9 +522,15 @@ Run the following command to destroy the infrastructure.
 
 ```bash
 terraform destroy
-gh repo delete cloud-native-ai-demo
 ```
 
 ## Feedback
 
 Please provide any feedback on this sample as a GitHub issue.
+
+## Resources
+
+- https://gateway-api.sigs.k8s.io/
+- https://argoproj.github.io/argo-rollouts/
+- https://rollouts-plugin-trafficrouter-gatewayapi.readthedocs.io/en/stable/
+- https://rollouts-plugin-trafficrouter-gatewayapi.readthedocs.io/en/stable/quick-start/
