@@ -215,7 +215,7 @@ EOF
 Restart the Argo Rollouts controller so that it can pick up the new plugin.
 
 ```bash
-kubectl rollout restart deployment -n argo-rollouts argorollouts-release-argo-rollouts
+kubectl rollout restart deployment -n argo-rollouts argo-rollouts
 ```
 
 Inspect the logs to ensure the plugin was loaded.
