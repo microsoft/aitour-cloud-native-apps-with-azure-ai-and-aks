@@ -28,8 +28,8 @@ gh auth login
 Fork this repository and clone it to your local machine.
 
 ```bash
-gh repo fork https://github.com/microsoft/aitour-cloud-native-apps-with-azure-ai-and-aks --fork-name cloud-native-ai-demo --clone
-cd cloud-native-ai-demo
+gh repo fork microsoft/aitour-cloud-native-apps-with-azure-ai-and-aks --fork-name cloud-native-apps-with-azure-ai-and-aks-demo --clone
+cd cloud-native-apps-with-azure-ai-and-aks-demo
 ```
 
 > [!CAUTION]
@@ -187,11 +187,7 @@ Install the ArgoCD Helm chart
 helm install argocd argo/argo-cd \
 --namespace argocd \
 --create-namespace \
---version 7.3.7 \
---set 'global.tolerations[0].key=CriticalAddonsOnly' \
---set 'global.tolerations[0].operator=Equal' \
---set 'global.tolerations[0].value="true"' \
---set 'global.tolerations[0].effect=NoSchedule'
+--version 7.3.7
 ```
 
 > [!TIP]
@@ -203,11 +199,7 @@ Install the Argo Rollouts Helm chart
 helm install argo-rollouts argo/argo-rollouts \
 --namespace argo-rollouts \
 --create-namespace \
---version 2.37.2 \
---set 'global.tolerations[0].effect=NoSchedule' \
---set 'global.tolerations[0].operator=Equal' \
---set 'global.tolerations[0].key=CriticalAddonsOnly' \
---set 'global.tolerations[0].value="true"'
+--version 2.37.2
 ```
 
 This demo will use Argo Rollouts to manage the progressive delivery of the AI service. To do this, we will need to enable Argo Rollouts to use the Gateway API plugin.
