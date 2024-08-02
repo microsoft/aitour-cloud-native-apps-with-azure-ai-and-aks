@@ -32,6 +32,13 @@ gh repo fork https://github.com/microsoft/aitour-cloud-native-apps-with-azure-ai
 cd cloud-native-ai-demo
 ```
 
+> [!CAUTION]
+> Make sure to run the following command and select your forked repository as the default. Otherwise, you may run into issues with merging and pushing changes as you work through the demo.
+
+```bash
+gh repo set-default
+```
+
 Login to the Azure CLI using `az login` and then run the following command to register the extensions.
 
 ```bash
@@ -371,12 +378,19 @@ argocd login --core
 
 Deploy the demo application.
 
+> [!CAUTION]
+> Make sure you have not run the `gh repo set-default` command as mentioned above, you should do that now before running the next set of commands.
+
 ```bash
+argocd repo add $(gh repo view --json url | jq .url -r) \
+--username $(gh api user --jq .login) \
+--password $(gh auth token)
+
 argocd app create pets \
 --sync-policy auto \
---repo https://github.com/pauldotyu/aks-store-demo-manifests.git \
---revision argo \
---path overlays/dev \
+--repo $(gh repo view --json url | jq .url -r) \
+--revision HEAD \
+--path src/manifests/kustomize/overlays/dev \
 --dest-namespace pets \
 --dest-server https://kubernetes.default.svc
 ```
@@ -399,7 +413,7 @@ Once you see the application has deployed completely, run the following command 
 
 ```bash
 INGRESS_PUBLIC_IP=$(kubectl get svc -n aks-istio-ingress aks-istio-ingressgateway-external -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-curl -IL "http://${INGRESS_PUBLIC_IP}" -H "Host: shop.aks.rocks"
+curl -IL "http://${INGRESS_PUBLIC_IP}" -H "Host: store.aks.rocks"
 ```
 
 Add a hosts file entry on your local machine to browse to the application using a friendly URL.
@@ -407,12 +421,12 @@ Add a hosts file entry on your local machine to browse to the application using 
 Open your hosts file and add the following entry.
 
 ```bash
-<YOUR_INGRESS_PUBLIC_IP> shop.aks.rocks
+<YOUR_INGRESS_PUBLIC_IP> store.aks.rocks
 ```
 
 Now you can browse to both the frontend and backend applications using the following URLs.
 
-- [http://shop.aks.rocks](http://shop.aks.rocks)
+- [http://store.aks.rocks](http://store.aks.rocks)
 - [http://admin.aks.rocks](http://admin.aks.rocks)
 
 > [!IMPORTANT]
@@ -423,10 +437,11 @@ Now you can browse to both the frontend and backend applications using the follo
 Merge the **ai** branch to deploy the rollout for the **ai-service**.
 
 ```bash
-git merge ai
+git fetch upstream feat/ai-rollout
+git merge upstream/feat/ai-rollout
 ```
 
-Open the base/ai-service.yaml manifest and note the canary steps in the manifest. The first step sets the weight to 50% for the canary service. The second step pauses the rollout. The third step sets the weight to 100% for the canary service. The fourth step pauses the rollout and waits for a final promotion.
+Open the `src/manifests/kustomize/base/ai-service.yaml` manifest and note the canary steps in the manifest. The first step sets the weight to 50% for the canary service. The second step pauses the rollout. The third step sets the weight to 100% for the canary service. The fourth step pauses the rollout and waits for a final promotion.
 
 Push the commit to the remote repository.
 
