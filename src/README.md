@@ -6,6 +6,9 @@ This guide will walk you through the demo of progressively rolling out AI enable
 
 You will need the following tools installed on your machine.
 
+> [!IMPORTANT]
+> The commands listed below should be run in a POSIX compliant shell such as bash or zsh.
+
 - [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
 - [GitHub CLI](https://cli.github.com/)
 - [Terraform](https://www.terraform.io/downloads.html)
@@ -13,9 +16,6 @@ You will need the following tools installed on your machine.
 - [Helm](https://helm.sh/docs/intro/install/)
 - [ArgoCD CLI](https://argo-cd.readthedocs.io/en/stable/getting_started/#1-install-argo-cd)
 - [Argo Rollouts Kubectl Plugin](https://argo-rollouts.readthedocs.io/en/stable/installation/#kubectl-plugin-installation)
-
-> [!CAUTION]
-> The commands listed below should be run in a POSIX compliant shell such as bash or zsh.
 
 ## Getting started
 
@@ -120,7 +120,7 @@ kubectl create configmap -n kube-system ama-metrics-prometheus-config --from-fil
 
 Deploy GatewayAPI for the application.
 
-> [!WARNING]
+> [!NOTE]
 > The [Kubernetes Gateway API](https://github.com/kubernetes-sigs/gateway-api) project is still under active development and its CRDs are not installed by default in Kubernetes. You will need to install them manually. Keep an eye on the project's [releases](https://github.com/kubernetes-sigs/gateway-api/releases) page for the latest version of the CRDs.
 
 ```bash
@@ -189,6 +189,9 @@ helm install argocd argo/argo-cd \
 --create-namespace \
 --version 7.3.7
 ```
+
+> [!TIP]
+> AKS Automatic clusters leverages Karpenter (Node Autoprovision) for node autoscaling, so it can take a minute or two for the new node to be provisioned.
 
 Install the Argo Rollouts Helm chart
 
@@ -378,7 +381,7 @@ argocd login --core
 
 Deploy the demo application.
 
-> [!CAUTION]
+> [!WARNING]
 > Make sure you have not run the `gh repo set-default` command as mentioned above, you should do that now before running the next set of commands.
 
 ```bash
@@ -429,7 +432,7 @@ Now you can browse to both the frontend and backend applications using the follo
 - [http://store.aks.rocks](http://store.aks.rocks)
 - [http://admin.aks.rocks](http://admin.aks.rocks)
 
-> [!IMPORTANT]
+> [!NOTE]
 > This is where you show the admin site and how AI is not enabled yet.
 
 ## Sprinkle in some AI magic ✨
@@ -471,8 +474,8 @@ kubectl describe httproute ai-service -n pets
 
 Using a web browser, navigate to the store admin site and create a new product.
 
-> [!IMPORTANT]
-> You should see the AI service being used to generate the product description ✨
+> [!NOTE]
+> The AI service is now being used to generate the product descriptions ✨
 
 Next, let's update the rollout to set the **ai-service** image to the **latest** version.
 
@@ -528,8 +531,8 @@ When you see the **Status** show **✔ Healthy** and **revision:1** ReplicaSet s
 
 Go back to the store admin site and edit the product you created earlier.
 
-> [!IMPORTANT]
-> You should see the AI service can be used to generate the product images too ✨✨
+> [!NOTE]
+> The AI service is now being used to generate the product images too ✨✨
 
 ## BONUS: Import Istio dashboard into Azure Managed Grafana
 
