@@ -18,7 +18,7 @@ spec:
         "kubernetes.io/os": linux
       containers:
       - name: order-service
-        image: ghcr.io/pauldotyu/aks-store-demo/order-service:latest
+        image: ghcr.io/pauldotyu/aks-store-demo/order-service:1.5.0
         ports:
         - containerPort: 3000
         envFrom:

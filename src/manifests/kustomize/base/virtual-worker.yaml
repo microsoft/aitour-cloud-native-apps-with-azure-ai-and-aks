@@ -16,7 +16,7 @@ spec:
         "kubernetes.io/os": linux
       containers:
       - name: virtual-worker
-        image: ghcr.io/pauldotyu/aks-store-demo/virtual-worker:latest
+        image: ghcr.io/pauldotyu/aks-store-demo/virtual-worker:1.5.0
         env:
         - name: MAKELINE_SERVICE_URL
           value: http://makeline-service:3001
