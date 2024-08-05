@@ -18,11 +18,6 @@ resource "azurerm_cosmosdb_account" "example" {
     location          = azurerm_resource_group.example.location
     failover_priority = 0 # primary location
   }
-
-  # geo_location {
-  #   location          = var.cosmosdb_failover_location
-  #   failover_priority = 1 # secondary location
-  # }
 }
 
 resource "azurerm_cosmosdb_sql_database" "example" {

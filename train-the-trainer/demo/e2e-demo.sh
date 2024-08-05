@@ -188,14 +188,14 @@ pei "helm repo update"
 
 p "# Install Argo CD"
 TYPE_SPEED=80
-pei "helm install argocd argo/argo-cd --namespace argocd --create-namespace --version 7.3.7"
+pei "helm install argocd argo/argo-cd --namespace argocd --create-namespace --version 7.3.7 --set 'global.tolerations[0].key=CriticalAddonsOnly' --set 'global.tolerations[0].operator=Exists' --set 'global.tolerations[0].effect=NoSchedule' --set 'global.nodeSelector.agentpool=systempool'"
 TYPE_SPEED=40
 pe "clear"
 
 
 p "# Install Argo Rollouts"
 TYPE_SPEED=80
-pei "helm install argo-rollouts argo/argo-rollouts --namespace argo-rollouts --create-namespace --version 2.37.2"
+pei "helm install argo-rollouts argo/argo-rollouts --namespace argo-rollouts --create-namespace --version 2.37.3 --set 'controller.tolerations[0].key=CriticalAddonsOnly' --set 'controller.tolerations[0].operator=Exists' --set 'controller.tolerations[0].effect=NoSchedule' --set 'controller.nodeSelector.agentpool=systempool'"
 TYPE_SPEED=40
 pe "clear"
 

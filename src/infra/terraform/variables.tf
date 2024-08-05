@@ -7,13 +7,7 @@ variable "location" {
 variable "ai_location" {
   description = "value of azure region for deploying azure open ai service"
   type        = string
-  default     = "swedencentral"
-}
-
-variable "cosmosdb_failover_location" {
-  description = "value of azure cosmosdb failover location"
-  type        = string
-  default     = "southeastasia"
+  default     = "australiaeast"
 }
 
 variable "gpt_model_name" {
