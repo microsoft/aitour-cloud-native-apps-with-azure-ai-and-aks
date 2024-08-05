@@ -1,13 +1,58 @@
 #!/bin/bash
 
 echo "Registering features and providers..."
+az provider register -n Microsoft.ContainerService
+az provider register -n Microsoft.Dashboard
+az provider register -n Microsoft.AlertsManagement
 az feature register --namespace Microsoft.ContainerService --name EnableAPIServerVnetIntegrationPreview
 az feature register --namespace Microsoft.ContainerService --name NRGLockdownPreview
 az feature register --namespace Microsoft.ContainerService --name SafeguardsPreview
 az feature register --namespace Microsoft.ContainerService --name NodeAutoProvisioningPreview
 az feature register --namespace Microsoft.ContainerService --name DisableSSHPreview
 az feature register --namespace Microsoft.ContainerService --name AutomaticSKUPreview
-az provider register --namespace Microsoft.ContainerService
+
+while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "EnableAPIServerVnetIntegrationPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
+  echo "Waiting for EnableAPIServerVnetIntegrationPreview feature registration..."
+  sleep 3
+done
+
+while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "NRGLockdownPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
+  echo "Waiting for NRGLockdownPreview feature registration..."
+  sleep 3
+done
+
+while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "SafeguardsPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
+  echo "Waiting for SafeguardsPreview feature registration..."
+  sleep 3
+done
+
+while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "NodeAutoProvisioningPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
+  echo "Waiting for NodeAutoProvisioningPreview feature registration..."
+  sleep 3
+done
+
+while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "DisableSSHPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
+  echo "Waiting for DisableSSHPreview feature registration..."
+  sleep 3
+done
+
+while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "AutomaticSKUPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
+  echo "Waiting for AutomaticSKUPreview feature registration..."
+  sleep 3
+done
+
+# propagate the feature registrations
+az provider register -n Microsoft.ContainerService
+
+while [[ $(az provider show --namespace "Microsoft.Dashboard" --query "registrationState" -o tsv) != "Registered" ]]; do
+  echo "Waiting for Microsoft.Dashboard provider registration..."
+  sleep 3
+done
+
+while [[ $(az provider show --namespace "Microsoft.AlertsManagement" --query "registrationState" -o tsv) != "Registered" ]]; do
+  echo "Waiting for Microsoft.AlertsManagement provider registration..."
+  sleep 3
+done
 
 echo "Installing extensions..."
 az extension add --name aks-preview
@@ -17,6 +62,13 @@ echo "Applying Terraform and exporting output variables..."
 cd src/infra/terraform
 terraform init
 terraform apply --auto-approve
+
+# check return code from previous command
+if [ $? -ne 0 ]; then
+  echo "Terraform apply failed. Exiting..."
+  exit 1
+fi
+
 export RG_NAME=$(terraform output -raw rg_name)
 export AKS_NAME=$(terraform output -raw aks_name)
 export OAI_GPT_ENDPOINT=$(terraform output -raw oai_gpt_endpoint)
@@ -34,6 +86,7 @@ export SB_HOSTNAME=$(terraform output -raw sb_hostname)
 export SB_QUEUE_NAME=$(terraform output -raw sb_queue_name)
 export SB_IDENTITY_CLIENT_ID=$(terraform output -raw sb_identity_client_id)
 
+echo "Downloading kubeconfig..."
 az aks get-credentials --name $AKS_NAME --resource-group $RG_NAME
 
 echo "Deploying prometheus scrape configs..."
