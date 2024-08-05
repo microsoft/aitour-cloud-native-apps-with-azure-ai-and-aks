@@ -214,6 +214,11 @@ gh auth login -h github.com -s delete_repo
 gh repo fork microsoft/aitour-cloud-native-apps-with-azure-ai-and-aks --fork-name ai-tour-aks-demo --clone
 cd ai-tour-aks-demo
 gh repo set-default
-cd -
+
+echo "Setting up the ArgoCD app repo..."
+kubectl config set-context --current --namespace=argocd
+argocd login --core
+argocd repo add $(gh repo view --json url | jq .url -r) --username $(gh api user --jq .login) --password $(gh auth token)
 
 echo "Demo setup complete! Now you can run the 'make run' command to start the demo."
+cd -

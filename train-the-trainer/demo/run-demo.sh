@@ -5,24 +5,12 @@
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 clear
 
-cd ../../ai-tour-aks-demo
+cd ../../src/infra/terraform/ai-tour-aks-demo
 
 TYPE_SPEED=40
 
 p "# Check the pets namespace"
 pei "kubectl get all -n pets"
-
-p "# Set the default namespace to argocd"
-pei "kubectl config set-context --current --namespace=argocd"
-
-p "# Login to the ArgoCD release server"
-pei "argocd login --core"
-
-p "# Add repo credentials"
-TYPE_SPEED=100
-p "argocd repo add \$(gh repo view --json url | jq .url -r) --username \$(gh api user --jq .login) --password \$(gh auth token)"
-argocd repo add $(gh repo view --json url | jq .url -r) --username $(gh api user --jq .login) --password $(gh auth token)
-TYPE_SPEED=40
 
 p "# Deploy the demo application"
 TYPE_SPEED=100
@@ -44,7 +32,7 @@ pe "clear"
 p "# Add AI to the application"
 pei "git fetch upstream feat/ai-rollout"
 pei "git merge upstream/feat/ai-rollout"
-pe "less ../../../src/manifests/kustomize/base/ai-service.yaml "
+pe "less src/manifests/kustomize/base/ai-service.yaml"
 
 p "# Push the changes to remote"
 pei "git push"
