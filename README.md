@@ -1,7 +1,5 @@
 # Leveraging cloud native infra for your intelligent apps
 
-This repo is intended as a template for Microsoft AI Tour repositories
-
 ## Session Description
 
 Deploying AI-enabled applications involves an application or microservice interacting with a LLM inferencing endpoint. Microservices architectures and a cloud native approach is ideal for hosting your intelligent apps. This session demonstrates how you can use Kubernetes and cloud-native tools to reduce operational overhead in building and running intelligent apps.
