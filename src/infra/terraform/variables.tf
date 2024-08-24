@@ -1,3 +1,8 @@
+variable "owner" {
+  description = "value to identify the owner of the resources"
+  type        = string
+}
+
 variable "location" {
   description = "value of azure region"
   type        = string

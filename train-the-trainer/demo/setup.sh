@@ -61,7 +61,7 @@ az extension add --name amg
 echo "Applying Terraform and exporting output variables..."
 cd src/infra/terraform
 terraform init
-terraform apply --auto-approve
+terraform apply -var="owner=$(whoami)" --auto-approve
 
 # check return code from previous command
 if [ $? -ne 0 ]; then

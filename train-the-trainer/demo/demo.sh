@@ -21,7 +21,7 @@ TYPE_SPEED=40
 p "# Check the app sync status"
 pe "argocd app list"
 
-p "# Check the ArgoCD dashboard"
+p "# Go to the ArgoCD dashboard"
 pe "argocd admin dashboard"
 pe "clear"
 
@@ -43,27 +43,27 @@ pei "argocd app sync pets --force"
 p "# Watch the rollout"
 pei "kubectl argo rollouts get rollout ai-service -n pets -w"
 
-p "# Check the httproute"
-pei "kubectl describe httproute ai-service -n pets"
+p "# Check the httproute weight distribution"
+pei "kubectl describe httproute ai-service -n pets | grep -B 3 Weight:"
 
 p "# Deploy a new version of the AI service"
 pei "kubectl argo rollouts set image ai-service -n pets ai-service=ghcr.io/pauldotyu/aks-store-demo/ai-service:latest"
 
-p "# Watch the rollout steps 1 and 2"
-pei "kubectl argo rollouts get rollout ai-service -n pets -w"
+p "# Watch the rollout from the Argo Rollouts dashboard"
+pei "kubectl argo rollouts dashboard"
 
 p "# Check the httproute"
-pei "kubectl describe httproute ai-service -n pets"
+pei "kubectl describe httproute ai-service -n pets | grep -B 3 Weight:"
 
-p "# Promote the new version of the AI service"
-pei "kubectl argo rollouts promote ai-service -n pets"
-
-p "# Watch the rollout steps 3 and 4"
-pei "kubectl argo rollouts get rollout ai-service -n pets -w"
+p "# Promote the new version of the AI service from the Argo Rollouts dashboard"
+pei "kubectl argo rollouts dashboard"
 
 p "# Check the httproute"
-pei "kubectl describe httproute ai-service -n pets"
+pei "kubectl describe httproute ai-service -n pets | grep -B 3 Weight:"
 
 p "# Final promotion"
 pei "kubectl argo rollouts promote ai-service -n pets"
 pei "kubectl argo rollouts get rollout ai-service -n pets -w"
+
+p "# Check the httproute one last time"
+pei "kubectl describe httproute ai-service -n pets | grep -B 3 Weight:"

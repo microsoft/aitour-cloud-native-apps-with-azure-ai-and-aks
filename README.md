@@ -48,12 +48,14 @@ If you would like to link the user to further learning, please enter that here.
 | Azure Managed Grafana  | [Docs](https://learn.microsoft.com/azure/managed-grafana/) | Learn more about Azure Managed Grafana |
 | Azure Managed Prometheus  | [Docs](https://learn.microsoft.com/azure/azure-monitor/essentials/prometheus-metrics-overview) | Learn more about Azure Managed Prometheus |
 | Azure Monitor for Kubernetes | [Docs](https://learn.microsoft.com/azure/azure-monitor/containers/container-insights-overview) | Learn more about Azure Log Analytics |
-| Istio Service Mesh | [Docs](https://learn.microsoft.com/en-us/azure/aks/istio-about) | Learn more about Istio-based Service Mesh add-on for AKS |
+| Istio Service Mesh | [Docs](https://learn.microsoft.com/azure/aks/istio-about) | Learn more about Istio-based Service Mesh add-on for AKS |
 | ArgoCD | [Docs](https://argoproj.github.io/cd/) | Learn more about ArgoCD |
 | Argo Rollouts | [Docs](https://argoproj.github.io/rollouts/) | Learn more about Argo Rollouts |
 | Gateway API | [Docs](https://gateway-api.sigs.k8s.io/) | Learn more about Kubernetes Gateway API |
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
+## Content Owners
 
 <table>
 <tr>
@@ -86,4 +88,3 @@ Large-scale natural language, image, and speech models - like the ones used in t
 Another aspect to take into account is the overall application performance. With multi-modal and multi-models applications, we consider performance to mean that the system performs as you and your users expect, including not generating harmful outputs. It's important to assess the performance of your overall application using generation quality and risk and safety metrics.
 
 You can evaluate your AI application in your development environment using the prompt flow SDK. Given either a test dataset or a target, your generative AI application generations are quantitatively measured with built-in evaluators or custom evaluators of your choice. To get started with the prompt flow sdk to evaluate your system, you can follow the quickstart guide. Once you execute an evaluation run, you can visualize the results in Azure AI Studio. Empowering responsible AI practices | Microsoft AI Explore how Microsoft is committed to advancing AI in a way that is driven by ethical principles that put people first.
-## Content Owners

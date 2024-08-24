@@ -64,4 +64,8 @@ resource "random_pet" "example" {
 resource "azurerm_resource_group" "example" {
   name     = "rg-${local.random_name}"
   location = var.location
+  tags = {
+    owner   = var.owner
+    session = "BRK470"
+  }
 }
