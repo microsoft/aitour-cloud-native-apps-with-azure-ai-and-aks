@@ -686,6 +686,7 @@ Run the following command to destroy the infrastructure.
 
 ```bash
 terraform destroy -var="owner=$(whoami)"
+rm terraform.tfstate*
 ```
 
 Delete the hosts file line entry on your local machine.
