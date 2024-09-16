@@ -20,8 +20,8 @@ code.
 | Resources          | Links                            | Description |
 |-------------------|----------------------------------|-------------------|
 | PowerPoint English        | [Presentation](https://aka.ms/AAryjht) | Slides |
-| PowerPoint Spanish       | [Presentation](https://microsoft.sharepoint.com/:p:/t/EventSessionUploads/Efv3cWtArvxAqhuDauuNPc0BCqQvE7KrV8VyPw7ca_jyVg?e=qwlWQ0) | ES Slides |
-| PowerPoint Portuguese       | [Presentation](https://microsoft.sharepoint.com/:p:/t/EventSessionUploads/EeHxde8YhAlNv_iAFSMkFrMBgOwkkBfumKFQaRQTDWdUaQ?e=in37Ej)| PT Slides |
+| PowerPoint Spanish       | [ES Presentation](https://aka.ms/AAs7u29) | ES Slides |
+| PowerPoint Portuguese       | [PT Presentation](https://aka.ms/AAs7ets)| PT Slides |
 | Demo Instructions | [Walkthrough](./demo/WALKTHROUGH.md) | Step-by-step instructions for manually setting up and running demo |
 | Demo Setup Script | [Script](./demo/setup.sh) | Script to setup demo environment |
 | Demo Script | [Script](./demo/demo.md) | Script to run the demo |
