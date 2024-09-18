@@ -1,9 +1,9 @@
 # run a script
 setup:
-	@./train-the-trainer/demo/setup-demo.sh;
+	@./session-delivery-resources/demo/setup.sh;
 
 run:
-	@cd train-the-trainer/demo && ./run-demo.sh;
+	@cd ./session-delivery-resources/demo && ./demo.sh;
 
-clean:
-	@cd src/infra/terraform && terraform destroy --auto-approve;
+cleanup:
+	@./session-delivery-resources/demo/cleanup.sh;

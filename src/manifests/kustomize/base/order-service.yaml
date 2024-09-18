@@ -29,14 +29,14 @@ spec:
             cpu: 1m
             memory: 50Mi
           limits:
-            cpu: 75m
+            cpu: "1"
             memory: 128Mi
         startupProbe:
           httpGet:
             path: /health
             port: 3000
           failureThreshold: 3
-          initialDelaySeconds: 10
+          initialDelaySeconds: 20
           periodSeconds: 5
         readinessProbe:
           httpGet:

@@ -14,7 +14,7 @@ resource "azapi_resource" "aks" {
         {
           name   = "systempool"
           count  = 3
-          vmSize = "Standard_D8ds_v5"
+          vmSize = "Standard_DS4_v2"
           osType = "Linux"
           mode   = "System"
         }

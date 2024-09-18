@@ -6,25 +6,39 @@ variable "owner" {
 variable "location" {
   description = "value of azure region"
   type        = string
-  default     = "australiaeast"
+  default     = "eastus"
 }
 
+# reference for model availability: https://learn.microsoft.com/azure/ai-services/openai/concepts/models#standard-deployment-model-availability
 variable "ai_location" {
   description = "value of azure region for deploying azure open ai service"
   type        = string
-  default     = "australiaeast"
+  default     = "eastus"
 }
 
 variable "gpt_model_name" {
   description = "value of azure open ai gpt model name"
   type        = string
-  default     = "gpt-35-turbo"
+  default     = "gpt-4o"
 }
 
 variable "gpt_model_version" {
   description = "value of azure open ai gpt model version"
   type        = string
-  default     = "0613"
+  default     = "2024-08-06"
+}
+
+
+variable "gpt_model_sku_name" {
+  description = "value of azure open ai gpt model sku name"
+  type        = string
+  default     = "GlobalStandard"
+}
+
+variable "gpt_model_capacity" {
+  description = "value of azure open ai gpt model capacity"
+  type        = number
+  default     = 8
 }
 
 variable "dalle_model_name" {
@@ -37,6 +51,18 @@ variable "dalle_model_version" {
   description = "value of azure open ai dall-e model version"
   type        = string
   default     = "3.0"
+}
+
+variable "dalle_model_sku_name" {
+  description = "value of azure open ai dall-e model sku name"
+  type        = string
+  default     = "Standard"
+}
+
+variable "dalle_model_capacity" {
+  description = "value of azure open ai dall-e model capacity"
+  type        = number
+  default     = 1
 }
 
 variable "dalle_openai_api_version" {

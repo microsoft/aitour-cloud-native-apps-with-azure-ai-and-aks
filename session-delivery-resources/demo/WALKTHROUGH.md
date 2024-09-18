@@ -35,7 +35,8 @@ cd aitour-cloud-native-apps-with-azure-ai-and-aks
 Login to the Azure CLI using the `az login` command.
 
 ```bash
-az login
+az login --tenant <TENANT_ID>
+export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 ```
 
 Before running the `terraform apply` command, be sure you have the required preview features enabled in your subscription for provisioning an AKS Automatic cluster.

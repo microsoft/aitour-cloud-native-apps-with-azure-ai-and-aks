@@ -1,6 +1,9 @@
 #!/bin/bash
 
+export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
 echo "Registering features and providers..."
+az provider register -n Microsoft.Monitor
 az provider register -n Microsoft.ContainerService
 az provider register -n Microsoft.Dashboard
 az provider register -n Microsoft.AlertsManagement
@@ -138,8 +141,42 @@ EOF
 echo "Installing ArgoCD and Argo Rollouts..."
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
-helm install argocd argo/argo-cd --namespace argocd --create-namespace --version 7.3.7 --set 'global.tolerations[0].key=CriticalAddonsOnly' --set 'global.tolerations[0].operator=Exists' --set 'global.tolerations[0].effect=NoSchedule' --set 'global.nodeSelector.agentpool=systempool'
-helm install argo-rollouts argo/argo-rollouts --namespace argo-rollouts --create-namespace --version 2.37.3 --set 'controller.tolerations[0].key=CriticalAddonsOnly' --set 'controller.tolerations[0].operator=Exists' --set 'controller.tolerations[0].effect=NoSchedule' --set 'controller.nodeSelector.agentpool=systempool'
+
+helm upgrade argocd argo/argo-cd --install --namespace argocd --create-namespace --version 7.3.7 --set 'global.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+
+# Function to check the status of argocd installation
+check_argocd_status() {
+  helm list -n argocd -ojson | jq -r '.[] | select(.name=="argocd") | .status'
+}
+
+# Initial status check
+status=$(check_argocd_status)
+
+# Loop until the status is not "failed"
+while [ "$status" == "failed" ]; do
+  echo "ArgoCD installation failed. Retrying..."
+  helm upgrade argocd argo/argo-cd --install --namespace argocd --create-namespace --version 7.3.7 --set 'global.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+  sleep 5  # Optional: wait for a few seconds before checking again
+  status=$(check_argocd_status)
+done
+
+helm upgrade argo-rollouts argo/argo-rollouts --install --namespace argo-rollouts --create-namespace --version 2.37.3 --set 'controller.podAnnotations.karpenter\.sh/do-not-disrupt=true' --set 'dashboard.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+
+# Function to check the status of argo-rollouts
+check_argorollouts_status() {
+  helm list -n argo-rollouts  -ojson | jq -r '.[] | select(.name=="argo-rollouts ") | .status'
+}
+
+# Initial status check
+status=$(check_argorollouts_status)
+
+# Loop until the status is not "failed"
+while [ "$status" == "failed" ]; do
+  echo "ArgoCD installation failed. Retrying..."
+  helm upgrade argo-rollouts argo/argo-rollouts --install --namespace argo-rollouts --create-namespace --version 2.37.3 --set 'controller.podAnnotations.karpenter\.sh/do-not-disrupt=true' --set 'dashboard.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+  sleep 5  # Optional: wait for a few seconds before checking again
+  status=$(check_argorollouts_status)
+done
 
 echo "Install the traffic router plugin for gateway api..."
 kubectl apply -f - <<EOF
