@@ -1,0 +1,31 @@
+apiVersion: apps/v1   
+kind: Deployment
+metadata:
+  labels:
+    app: mynginx
+  name: mynginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mynginx
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mynginx2
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - mynginx
+            topologyKey: "kubernetes.io/hostname"

@@ -37,21 +37,31 @@ spec:
             port: 3001
           failureThreshold: 3
           initialDelaySeconds: 5
-          periodSeconds: 5
+          periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
             port: 3001
           failureThreshold: 3
           initialDelaySeconds: 3
-          periodSeconds: 5
+          periodSeconds: 15
         livenessProbe:
           httpGet:
             path: /health
             port: 3001
           failureThreshold: 5
           initialDelaySeconds: 3
-          periodSeconds: 3
+          periodSeconds: 20
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - makeline-service
+            topologyKey: "kubernetes.io/hostname"
 ---
 apiVersion: v1
 kind: Service

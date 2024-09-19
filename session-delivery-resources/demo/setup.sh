@@ -92,6 +92,9 @@ export SB_IDENTITY_CLIENT_ID=$(terraform output -raw sb_identity_client_id)
 echo "Downloading kubeconfig..."
 az aks get-credentials --name $AKS_NAME --resource-group $RG_NAME
 
+echo "Deploying a sample app to kickstart the user nodepool nodes..."
+kubectl apply -f ../src/manifests/sample.yaml
+
 echo "Deploying prometheus scrape configs..."
 kubectl create configmap -n kube-system ama-metrics-prometheus-config --from-file prometheus-config
 

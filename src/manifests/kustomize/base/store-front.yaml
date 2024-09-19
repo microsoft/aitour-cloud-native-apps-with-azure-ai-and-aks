@@ -38,21 +38,31 @@ spec:
             port: 8080
           failureThreshold: 3
           initialDelaySeconds: 10
-          periodSeconds: 5
+          periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
             port: 8080
           failureThreshold: 3
           initialDelaySeconds: 3
-          periodSeconds: 3
+          periodSeconds: 15
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
           failureThreshold: 5
           initialDelaySeconds: 3
-          periodSeconds: 3
+          periodSeconds: 20
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store-front
+            topologyKey: "kubernetes.io/hostname"
 ---
 apiVersion: v1
 kind: Service

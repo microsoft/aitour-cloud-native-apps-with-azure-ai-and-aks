@@ -1,6 +1,6 @@
 #!/bin/bash
 # import the magic file shout out to @paxtonhare ✨
-# make sure you have pv installed for the pei function to work!
+# make sure you have pv installed for the pe and pei functions to work!
 . demo-magic.sh
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 clear
@@ -21,12 +21,18 @@ TYPE_SPEED=40
 p "# Check the app sync status"
 pe "argocd app list"
 
-p "# Go to the ArgoCD dashboard"
-pe "argocd admin dashboard"
+p "# Get the ArgoCD server password"
+pei "argocd admin initial-password"
+
+p "# Port-forward to the ArgoCD dashboard"
+pei "kubectl port-forward svc/argocd-server -n argocd 8080:443"
 pe "clear"
 
 p "# Test the application"
-pei "kubectl get svc -n aks-istio-ingress aks-istio-ingressgateway-external -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"
+pe "INGRESS_PUBLIC_IP=\$(kubectl get svc -n aks-istio-ingress aks-istio-ingressgateway-external -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+pe "curl -IL \"http://\${INGRESS_PUBLIC_IP}\" -H \"Host: admin.aks.rocks\""
+pe "echo \"\${INGRESS_PUBLIC_IP} admin.aks.rocks store.aks.rocks\" | sudo tee -a /etc/hosts"
+pe "echo http://admin.aks.rocks"
 pe "clear"
 
 p "# Add AI to the application"

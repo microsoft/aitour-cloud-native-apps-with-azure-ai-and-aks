@@ -459,8 +459,14 @@ Optionally, you can use the ArgoCD Release Server UI to watch the application de
 Run the following command then click on the link below to open the ArgoCD UI.
 
 ```bash
-argocd admin dashboard
+# get the admin password
+argocd admin initial-password
+
+# port forward to the ArgoCD server
+kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
+
+Browse to https://localhost:8080 and log in with the admin password (username is **admin**).
 
 > [!NOTE]
 > This can take a few minutes to deploy the application due to Node Autoprovisioning.

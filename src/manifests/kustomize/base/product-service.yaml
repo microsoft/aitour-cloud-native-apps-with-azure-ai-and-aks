@@ -26,20 +26,37 @@ spec:
           limits:
             cpu: 1m
             memory: 6Mi
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
             port: 3002
           failureThreshold: 3
           initialDelaySeconds: 3
-          periodSeconds: 5
+          periodSeconds: 15
         livenessProbe:
           httpGet:
             path: /health
             port: 3002
           failureThreshold: 5
           initialDelaySeconds: 3
-          periodSeconds: 3
+          periodSeconds: 20
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - product-service
+            topologyKey: "kubernetes.io/hostname"
 ---
 apiVersion: v1
 kind: Service

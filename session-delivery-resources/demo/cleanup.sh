@@ -19,4 +19,7 @@ rm -rf ai-tour-aks-demo
 gh auth login -h github.com -s delete_repo
 gh repo delete $(gh api user --jq .login)/ai-tour-aks-demo --yes
 
-echo "All cleaned up"
+echo "Removing host entries..."
+sudo sed -i '' '/admin.aks.rocks/d' /etc/hosts
+
+echo "Cleanup complete!"
