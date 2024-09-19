@@ -5,5 +5,8 @@ setup:
 run:
 	@cd ./session-delivery-resources/demo && ./demo.sh;
 
+reset:
+	@./session-delivery-resources/demo/reset.sh;
+
 cleanup:
 	@./session-delivery-resources/demo/cleanup.sh;

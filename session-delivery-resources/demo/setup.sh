@@ -93,7 +93,7 @@ echo "Downloading kubeconfig..."
 az aks get-credentials --name $AKS_NAME --resource-group $RG_NAME
 
 echo "Deploying a sample app to kickstart the user nodepool nodes..."
-kubectl apply -f ./src/manifests/sample.yaml
+kubectl apply -f https://raw.githubusercontent.com/microsoft/aitour-cloud-native-apps-with-azure-ai-and-aks/refs/heads/main/src/manifests/sample.yaml
 
 echo "Deploying prometheus scrape configs..."
 kubectl create configmap -n kube-system ama-metrics-prometheus-config --from-file prometheus-config

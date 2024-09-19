@@ -17,7 +17,8 @@ code.
 1. Run the `make setup` command which will invoke the [`setup.sh`](./demo/setup.sh) script to setup a demo environment on the day of the presentation
 1. Run the `make demo` command which will invoke the [`demo.sh`](./demo/demo.sh) script to run the demo on the day of the presentation
 1. Ask questions of the Lead Presenter
-1. When complete, run the `make cleanup` command which will invoke the [`clean.sh`](./demo/cleanup.sh) script to clean up the demo environment
+1. When complete, run the `make cleanup` command which will invoke the [`clean.sh`](./demo/cleanup.sh) script to clean up the demo environment and delete all resources created during the demo
+1. To restart the demo, run the `make reset` command which will invoke the [`reset.sh`](./demo/reset.sh) script to delete the application and reset the forked repo to its original state
 
 ## File Summary
 
