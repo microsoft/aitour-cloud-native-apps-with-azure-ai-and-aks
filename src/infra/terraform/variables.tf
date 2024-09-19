@@ -6,14 +6,14 @@ variable "owner" {
 variable "location" {
   description = "value of azure region"
   type        = string
-  default     = "eastus"
+  default     = "swedencentral"
 }
 
 # reference for model availability: https://learn.microsoft.com/azure/ai-services/openai/concepts/models#standard-deployment-model-availability
 variable "ai_location" {
   description = "value of azure region for deploying azure open ai service"
   type        = string
-  default     = "eastus"
+  default     = "swedencentral"
 }
 
 variable "gpt_model_name" {

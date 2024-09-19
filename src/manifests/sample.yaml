@@ -13,7 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        app: mynginx2
+        app: mynginx
     spec:
       containers:
       - image: nginx
