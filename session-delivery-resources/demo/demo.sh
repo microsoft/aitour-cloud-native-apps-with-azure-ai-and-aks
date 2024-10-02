@@ -1,6 +1,12 @@
 #!/bin/bash
 # import the magic file shout out to @paxtonhare ✨
 # make sure you have pv installed for the pe and pei functions to work!
+which pv
+if [ $? -ne 0 ]; then
+  echo "pv is not installed. Please install it using 'brew install pv' or 'sudo apt-get install pv'"
+  exit 1
+fi
+
 . demo-magic.sh
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 clear
