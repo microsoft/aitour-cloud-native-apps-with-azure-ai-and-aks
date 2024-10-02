@@ -47,14 +47,14 @@ p "# Add AI to the application"
 pei "git fetch upstream feat/ai-rollout"
 pei "git merge upstream/feat/ai-rollout"
 
-p "# Check the changes"
-pei "less src/manifests/kustomize/base/ai-service.yaml"
-
 p "# Push the changes to remote"
 pei "git push"
 
 p "# Force app sync"
 pei "argocd app sync pets --force"
+
+p "# Check the changes"
+pei "less src/manifests/kustomize/base/ai-service.yaml"
 
 p "# Watch the rollout"
 pei "kubectl argo rollouts get rollout ai-service -n pets -w"
