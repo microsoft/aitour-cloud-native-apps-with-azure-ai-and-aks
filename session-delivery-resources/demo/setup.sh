@@ -92,8 +92,11 @@ export SB_IDENTITY_CLIENT_ID=$(terraform output -raw sb_identity_client_id)
 echo "Downloading kubeconfig..."
 az aks get-credentials --name $AKS_NAME --resource-group $RG_NAME
 
-echo "Installing kubelogin..."
-sudo az aks install-cli
+which kubelogin
+if [ $? -ne 0 ]; then
+  echo "Installing kubelogin..."
+  sudo az aks install-cli
+fi
 
 echo "Deploying a sample app to kickstart the user nodepool nodes..."
 kubectl apply -f https://raw.githubusercontent.com/microsoft/aitour-cloud-native-apps-with-azure-ai-and-aks/refs/heads/main/src/manifests/sample.yaml
