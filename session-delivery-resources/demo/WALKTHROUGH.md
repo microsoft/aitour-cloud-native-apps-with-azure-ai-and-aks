@@ -14,8 +14,9 @@ You will need the following tools installed on your machine.
 - [Terraform](https://www.terraform.io/downloads.html)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [Helm](https://helm.sh/docs/intro/install/)
-- [ArgoCD CLI](https://argo-cd.readthedocs.io/en/stable/getting_started/#1-install-argo-cd)
+- [ArgoCD CLI](https://argo-cd.readthedocs.io/en/stable/cli_installation/#linux-and-wsl)
 - [Argo Rollouts Kubectl Plugin](https://argo-rollouts.readthedocs.io/en/stable/installation/#kubectl-plugin-installation)
+- [jq](https://jqlang.github.io/jq/download/)
 
 ## Getting started
 
