@@ -5,7 +5,7 @@ resource "azapi_resource" "aks" {
   name                      = "aks-${local.random_name}"
   schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     identity = {
       type = "SystemAssigned"
     },
@@ -13,8 +13,8 @@ resource "azapi_resource" "aks" {
       agentPoolProfiles = [
         {
           name   = "systempool"
-          count  = 3
-          vmSize = "Standard_DS4_v2"
+          count  = 2
+          vmSize = "Standard_D4pds_v6"
           osType = "Linux"
           mode   = "System"
         }
@@ -66,7 +66,7 @@ resource "azapi_resource" "aks" {
       name = "Automatic"
       tier = "Standard"
     }
-  })
+  }
 
   response_export_values = [
     "properties.identityProfile.kubeletidentity.objectId",

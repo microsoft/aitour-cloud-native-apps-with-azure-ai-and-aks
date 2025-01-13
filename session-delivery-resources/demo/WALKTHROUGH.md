@@ -46,14 +46,8 @@ Before running the `terraform apply` command, be sure you have the required prev
 az provider register -n Microsoft.ContainerService
 az provider register -n Microsoft.Dashboard
 az provider register -n Microsoft.AlertsManagement
-az feature register --namespace Microsoft.ContainerService --name EnableAPIServerVnetIntegrationPreview
-az feature register --namespace Microsoft.ContainerService --name NRGLockdownPreview
-az feature register --namespace Microsoft.ContainerService --name SafeguardsPreview
-az feature register --namespace Microsoft.ContainerService --name NodeAutoProvisioningPreview
-az feature register --namespace Microsoft.ContainerService --name DisableSSHPreview
 az feature register --namespace Microsoft.ContainerService --name AutomaticSKUPreview
 ```
-
 
 > [!WARNING]
 > Wait until all the providers and features are registered before proceeding.
@@ -129,7 +123,7 @@ Deploy GatewayAPI for the application.
 > The [Kubernetes Gateway API](https://github.com/kubernetes-sigs/gateway-api) project is still under active development and its CRDs are not installed by default in Kubernetes. You will need to install them manually. Keep an eye on the project's [releases](https://github.com/kubernetes-sigs/gateway-api/releases) page for the latest version of the CRDs.
 
 ```bash
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
 ```
 
 ## Install Istio Gateways
@@ -196,7 +190,7 @@ helm upgrade argocd argo/argo-cd \
 --install \
 --namespace argocd \
 --create-namespace \
---version 7.3.7 \
+--version 7.7.15 \
 --set 'global.podAnnotations.karpenter\.sh/do-not-disrupt=true'
 ```
 
@@ -210,7 +204,7 @@ helm upgrade argo-rollouts argo/argo-rollouts \
 --install \
 --namespace argo-rollouts \
 --create-namespace \
---version 2.37.2 \
+--version 2.38.2 \
 --set 'controller.podAnnotations.karpenter\.sh/do-not-disrupt=true' \
 --set 'dashboard.podAnnotations.karpenter\.sh/do-not-disrupt=true'
 ```
@@ -231,7 +225,7 @@ metadata:
 data:
   trafficRouterPlugins: |-
     - name: "argoproj-labs/gatewayAPI"
-      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.3.0/gateway-api-plugin-linux-amd64"
+      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.4.1/gatewayapi-plugin-linux-amd64"
 EOF
 ```
 
@@ -310,7 +304,7 @@ metadata:
   name: ai-service-configs
   namespace: pets
 data:
-  USE_AZURE_OPENAI: "True"  
+  USE_AZURE_OPENAI: "True"
   USE_AZURE_AD: "True"
   AZURE_OPENAI_ENDPOINT: $OAI_GPT_ENDPOINT
   AZURE_OPENAI_DEPLOYMENT_NAME: $OAI_GPT_DEPLOYMENT_NAME
@@ -337,7 +331,7 @@ kind: ConfigMap
 metadata:
   name: makeline-service-configs
   namespace: pets
-data:  
+data:
   USE_WORKLOAD_IDENTITY_AUTH: "true"
   ORDER_QUEUE_HOSTNAME: $SB_HOSTNAME
   ORDER_QUEUE_NAME: $SB_QUEUE_NAME

@@ -50,7 +50,7 @@ resource "azurerm_federated_identity_credential" "oai" {
   resource_group_name = azurerm_resource_group.example.name
   parent_id           = azurerm_user_assigned_identity.oai.id
   name                = "oai-${local.random_name}"
-  issuer              = jsondecode(azapi_resource.aks.output).properties.oidcIssuerProfile.issuerURL
+  issuer              = azapi_resource.aks.output.properties.oidcIssuerProfile.issuerURL
   audience            = ["api://AzureADTokenExchange"]
   subject             = "system:serviceaccount:${var.k8s_namespace}:ai-service-account"
 }

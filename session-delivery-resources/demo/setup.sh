@@ -7,38 +7,9 @@ az provider register -n Microsoft.Monitor
 az provider register -n Microsoft.ContainerService
 az provider register -n Microsoft.Dashboard
 az provider register -n Microsoft.AlertsManagement
-az feature register --namespace Microsoft.ContainerService --name EnableAPIServerVnetIntegrationPreview
-az feature register --namespace Microsoft.ContainerService --name NRGLockdownPreview
-az feature register --namespace Microsoft.ContainerService --name SafeguardsPreview
-az feature register --namespace Microsoft.ContainerService --name NodeAutoProvisioningPreview
-az feature register --namespace Microsoft.ContainerService --name DisableSSHPreview
 az feature register --namespace Microsoft.ContainerService --name AutomaticSKUPreview
 
-while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "EnableAPIServerVnetIntegrationPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
-  echo "Waiting for EnableAPIServerVnetIntegrationPreview feature registration..."
-  sleep 3
-done
-
-while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "NRGLockdownPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
-  echo "Waiting for NRGLockdownPreview feature registration..."
-  sleep 3
-done
-
-while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "SafeguardsPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
-  echo "Waiting for SafeguardsPreview feature registration..."
-  sleep 3
-done
-
-while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "NodeAutoProvisioningPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
-  echo "Waiting for NodeAutoProvisioningPreview feature registration..."
-  sleep 3
-done
-
-while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "DisableSSHPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
-  echo "Waiting for DisableSSHPreview feature registration..."
-  sleep 3
-done
-
+# wait for feature registration
 while [[ $(az feature show --namespace "Microsoft.ContainerService" --name "AutomaticSKUPreview" --query "properties.state" -o tsv) != "Registered" ]]; do
   echo "Waiting for AutomaticSKUPreview feature registration..."
   sleep 3
@@ -105,7 +76,7 @@ echo "Deploying prometheus scrape configs..."
 kubectl create configmap -n kube-system ama-metrics-prometheus-config --from-file prometheus-config
 
 echo "Installing the gateway api..."
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
 
 echo "Deploying internal and external gateways..."
 kubectl apply -f - <<EOF
@@ -151,7 +122,7 @@ echo "Installing ArgoCD and Argo Rollouts..."
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 
-helm upgrade argocd argo/argo-cd --install --namespace argocd --create-namespace --version 7.3.7 --set 'global.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+helm upgrade argocd argo/argo-cd --install --namespace argocd --create-namespace --version 7.7.15 --set 'global.podAnnotations.karpenter\.sh/do-not-disrupt=true'
 
 # Function to check the status of argocd installation
 check_argocd_status() {
@@ -164,12 +135,12 @@ status=$(check_argocd_status)
 # Loop until the status is not "failed"
 while [ "$status" == "failed" ]; do
   echo "ArgoCD installation failed. Retrying..."
-  helm upgrade argocd argo/argo-cd --install --namespace argocd --create-namespace --version 7.3.7 --set 'global.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+  helm upgrade argocd argo/argo-cd --install --namespace argocd --create-namespace --version 7.7.15 --set 'global.podAnnotations.karpenter\.sh/do-not-disrupt=true'
   sleep 5  # Optional: wait for a few seconds before checking again
   status=$(check_argocd_status)
 done
 
-helm upgrade argo-rollouts argo/argo-rollouts --install --namespace argo-rollouts --create-namespace --version 2.37.3 --set 'controller.podAnnotations.karpenter\.sh/do-not-disrupt=true' --set 'dashboard.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+helm upgrade argo-rollouts argo/argo-rollouts --install --namespace argo-rollouts --create-namespace --version 2.38.2 --set 'controller.podAnnotations.karpenter\.sh/do-not-disrupt=true' --set 'dashboard.podAnnotations.karpenter\.sh/do-not-disrupt=true'
 
 # Function to check the status of argo-rollouts
 check_argorollouts_status() {
@@ -182,7 +153,7 @@ status=$(check_argorollouts_status)
 # Loop until the status is not "failed"
 while [ "$status" == "failed" ]; do
   echo "ArgoCD installation failed. Retrying..."
-  helm upgrade argo-rollouts argo/argo-rollouts --install --namespace argo-rollouts --create-namespace --version 2.37.3 --set 'controller.podAnnotations.karpenter\.sh/do-not-disrupt=true' --set 'dashboard.podAnnotations.karpenter\.sh/do-not-disrupt=true'
+  helm upgrade argo-rollouts argo/argo-rollouts --install --namespace argo-rollouts --create-namespace --version 2.38.2 --set 'controller.podAnnotations.karpenter\.sh/do-not-disrupt=true' --set 'dashboard.podAnnotations.karpenter\.sh/do-not-disrupt=true'
   sleep 5  # Optional: wait for a few seconds before checking again
   status=$(check_argorollouts_status)
 done
@@ -197,7 +168,7 @@ metadata:
 data:
   trafficRouterPlugins: |-
     - name: "argoproj-labs/gatewayAPI"
-      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.3.0/gateway-api-plugin-linux-amd64"
+      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.4.1/gatewayapi-plugin-linux-amd64"
 EOF
 kubectl rollout restart deployment -n argo-rollouts argo-rollouts
 
