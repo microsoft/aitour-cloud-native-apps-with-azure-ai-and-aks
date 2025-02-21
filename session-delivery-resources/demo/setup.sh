@@ -168,7 +168,7 @@ metadata:
 data:
   trafficRouterPlugins: |-
     - name: "argoproj-labs/gatewayAPI"
-      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.4.1/gatewayapi-plugin-linux-amd64"
+      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.5.0/gatewayapi-plugin-linux-amd64"
 EOF
 kubectl rollout restart deployment -n argo-rollouts argo-rollouts
 
